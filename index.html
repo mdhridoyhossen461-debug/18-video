@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BD Viral Video</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+    }
+    .box {
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    p {
+      color: #bbb;
+    }
+    button {
+      width: 90%;
+      padding: 15px;
+      margin: 10px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      background: #229ED9;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>🎬 BD Viral Video</h1>
+    <p>আমাদের ভিডিও দেখতে নিচের বাটনে চাপুন</p>
+
+    <button onclick="openChannel()">📢 Telegram Channel</button>
+  </div>
+
+  <script>
+    function openChannel() {
+      window.open("https://t.me/bdviralvideo009", "_blank");
+    }
+
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  </script>
+</body>
+</html>
