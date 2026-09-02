@@ -15,7 +15,7 @@
     body {
       margin: 0;
       background: #111;
-      color: #fff;
+      color: white;
       font-family: Arial, sans-serif;
     }
 
@@ -28,38 +28,7 @@
     }
 
     .container {
-      padding: 15px;
-    }
-
-    .admin {
-      background: #1d1d1d;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-
-    input,
-    button {
-      width: 100%;
       padding: 12px;
-      margin-top: 10px;
-      border: 0;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    button {
-      background: #168cff;
-      color: white;
-      font-weight: bold;
-    }
-
-    button:active {
-      opacity: .8;
-    }
-
-    #uploadBox {
-      display: none;
     }
 
     .video {
@@ -95,47 +64,8 @@
 
 <div class="container">
 
-  <!-- ADMIN -->
-  <div class="admin">
-
-    <button onclick="showAdmin()">🔐 Admin Login</button>
-
-    <div id="uploadBox">
-
-      <input
-        type="password"
-        id="adminPassword"
-        placeholder="Admin Password">
-
-      <button onclick="login()">Login</button>
-
-      <div id="uploadArea" style="display:none;">
-
-        <input
-          type="text"
-          id="videoId"
-          placeholder="Bunny Video ID">
-
-        <input
-          type="text"
-          id="videoTitle"
-          placeholder="ভিডিওর নাম">
-
-        <button onclick="addVideo()">
-          ➕ ভিডিও যোগ করুন
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- VIDEOS -->
   <div id="videos">
-    <div class="message">
-      ভিডিও লোড হচ্ছে...
-    </div>
+    <div class="message">ভিডিও লোড হচ্ছে...</div>
   </div>
 
 </div>
@@ -143,17 +73,12 @@
 <script>
 
 const tg = window.Telegram.WebApp;
+
 tg.ready();
 tg.expand();
 
-/*
-  আপনার Bunny Library
-*/
 const LIBRARY_ID = "742266";
 
-/*
-  আপনার বর্তমান ভিডিও
-*/
 const videos = [
   {
     id: "50ccb81c-0869-4195-a9f3-6b75fe1dc137",
@@ -161,72 +86,15 @@ const videos = [
   }
 ];
 
-function showAdmin() {
-  document.getElementById("uploadBox").style.display = "block";
-}
-
-function login() {
-
-  const password =
-    document.getElementById("adminPassword").value;
-
-  /*
-    এটি শুধু DEMO login.
-    আসল নিরাপদ login পরে server-side করতে হবে।
-  */
-
-  if (password === "123456") {
-
-    document.getElementById("uploadArea")
-      .style.display = "block";
-
-    alert("Admin Login সফল হয়েছে");
-
-  } else {
-
-    alert("Password ভুল");
-
-  }
-}
-
-function addVideo() {
-
-  const id =
-    document.getElementById("videoId").value.trim();
-
-  const title =
-    document.getElementById("videoTitle").value.trim();
-
-  if (!id) {
-    alert("Bunny Video ID দিন");
-    return;
-  }
-
-  videos.unshift({
-    id: id,
-    title: title || "নতুন ভিডিও"
-  });
-
-  renderVideos();
-
-  document.getElementById("videoId").value = "";
-  document.getElementById("videoTitle").value = "";
-
-  alert("ভিডিও যোগ হয়েছে");
-
-}
-
 function renderVideos() {
 
-  const box =
-    document.getElementById("videos");
+  const box = document.getElementById("videos");
 
   box.innerHTML = "";
 
   videos.forEach(video => {
 
-    const div =
-      document.createElement("div");
+    const div = document.createElement("div");
 
     div.className = "video";
 
@@ -246,18 +114,15 @@ function renderVideos() {
     box.appendChild(div);
 
   });
-
 }
 
 function escapeHtml(text) {
 
-  const div =
-    document.createElement("div");
+  const div = document.createElement("div");
 
   div.textContent = text;
 
   return div.innerHTML;
-
 }
 
 renderVideos();
