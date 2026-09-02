@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hriday Video</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#111;color:white;font-family:Arial}
+header{padding:16px;text-align:center;background:#181818;font-size:22px;font-weight:bold}
+.container{padding:12px}
+.upload,.video{background:#1b1b1b;border-radius:12px;padding:12px;margin-bottom:18px}
+input,textarea,button{width:100%;padding:12px;margin:6px 0;border:0;border-radius:8px}
+button{font-weight:bold}
+iframe{width:100%;aspect-ratio:16/9;border:0}
+.title{font-size:18px;font-weight:bold;margin-top:8px}
+.description{color:#bbb;margin:8px 0}
+.actions{display:flex;gap:5px}
+.actions button{flex:1}
+.commentBox{display:none}
+.comment{border-top:1px solid #333;padding:8px;color:#ccc}
+</style>
+</head>
+<body>
+
+<header>🎬 Hriday Video</header>
+
+<div class="container">
+
+<div class="upload">
+<h3>📤 Upload Video</h3>
+<input id="title" placeholder="ভিডিও Title">
+<textarea id="description" placeholder="ভিডিও Description"></textarea>
+<input id="videoFile" type="file" accept="video/*">
+<button onclick="uploadVideo()">Upload Video</button>
+<div id="status"></div>
+</div>
+
+<div id="videos">ভিডিও লোড হচ্ছে...</div>
+
+</div>
+
+<script>
+const API="https://winter-haze-4463.mdhridoyhossen461.workers.dev";
+const LIBRARY_ID="742266";
+
+if(window.Telegram){
+ Telegram.WebApp.ready();
+ Telegram.WebApp.expand();
+}
+
+async function loadVideos(){
+ const box=document.getElementById("videos");
+ try{
+  const res=await fetch(API+"/videos");
+  const videos=await res.json();
+  box.innerHTML="";
+
+  if(!videos.length){
+   box.innerHTML="<div style='text-align:center;color:#aaa'>এখনো কোনো ভিডিও নেই</div>";
+   return;
+  }
+
+  videos.forEach(v=>{
+   const div=document.createElement("div");
+   div.className="video";
+
+   div.innerHTML=`
+   <iframe src="https://iframe.mediadelivery.net/embed/${LIBRARY_ID}/${v.id}" allow="autoplay;encrypted-media;picture-in-picture" allowfullscreen></iframe>
+   <div class="title">${esc(v.title)}</div>
+   <div class="description">${esc(v.description||"")}</div>
+
+   <div class="actions">
+   <button onclick="likeVideo('${v.id}')">❤️ ${v.likes||0}</button>
+   <button onclick="viewVideo('${v.id}')">👁️ ${v.views||0}</button>
+   <button onclick="comments('${v.id}')">💬 Comment</button>
+   <button onclick="shareVideo('${v.id}')">📤 Share</button>
+   </div>
+
+   <div id="c-${v.id}" class="commentBox">
+   <input id="i-${v.id}" placeholder="Comment লিখুন">
+   <button onclick="sendComment('${v.id}')">Send</button>
+   <div id="l-${v.id}"></div>
+   </div>`;
+
+   box.appendChild(div);
+  });
+ }catch(e){
+  box.innerHTML="❌ ভিডিও লোড হচ্ছে না";
+ }
+}
+
+async function uploadVideo(){
+ const file=document.getElementById("videoFile").files[0];
+ const title=document.getElementById("title").value;
+ const description=document.getElementById("description").value;
+ const status=document.getElementById("status");
+
+ if(!file){
+  status.innerText="ভিডিও নির্বাচন করুন";
+  return;
+ }
+
+ status.innerText="⏳ Upload হচ্ছে...";
+
+ const form=new FormData();
+ form.append("video",file);
+ form.append("title",title||"Untitled Video");
+ form.append("description",description);
+
+ try{
+  const res=await fetch(API+"/upload",{method:"POST",body:form});
+  const data=await res.json();
+
+  if(data.success){
+   status.innerText="✅ Upload সফল";
+   document.getElementById("title").value="";
+   document.getElementById("description").value="";
+   document.getElementById("videoFile").value="";
+   loadVideos();
+  }else{
+   status.innerText="❌ "+(data.error||"Upload failed");
+  }
+ }catch(e){
+  status.innerText="❌ Upload failed";
+ }
+}
+
+async function likeVideo(id){
+ await fetch(API+"/like/"+id,{method:"POST"});
+ loadVideos();
+}
+
+async function viewVideo(id){
+ await fetch(API+"/view/"+id,{method:"POST"});
+ loadVideos();
+}
+
+async function comments(id){
+ const box=document.getElementById("c-"+id);
+ box.style.display="block";
+
+ const res=await fetch(API+"/comments/"+id);
+ const data=await res.json();
+ const list=document.getElementById("l-"+id);
+ list.innerHTML="";
+
+ data.forEach(c=>{
+  list.innerHTML+=`<div class="comment">💬 ${esc(c.comment)}</div>`;
+ });
+}
+
+async function sendComment(id){
+ const input=document.getElementById("i-"+id);
+ const text=input.value.trim();
+
+ if(!text)return;
+
+ await fetch(API+"/comment",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({video_id:id,comment:text})
+ });
+
+ input.value="";
+ comments(id);
+}
+
+async function shareVideo(id){
+ const link="https://iframe.mediadelivery.net/embed/"+LIBRARY_ID+"/"+id;
+
+ if(navigator.share){
+  await navigator.share({title:"Hriday Video",url:link});
+ }else{
+  await navigator.clipboard.writeText(link);
+  alert("ভিডিও লিংক Copy হয়েছে");
+ }
+}
+
+function esc(text){
+ const d=document.createElement("div");
+ d.textContent=text||"";
+ return d.innerHTML;
+}
+
+loadVideos();
+</script>
+
+</body>
+</html>
